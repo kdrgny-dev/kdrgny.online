@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
+import Experience from '../components/Experience'
 import Header from '../components/Header'
+import Projects from '../components/Projects'
 import Summary from '../components/Summary'
 import Urls from '../components/Urls'
 
@@ -39,6 +41,8 @@ export default function Home() {
             <div className="flex flex-col gap-4">
               <Urls data={data?.urls} />
               <Summary data={data?.summary} />
+              <Experience data={data?.experience} />
+              <Projects data={data?.projects} />
             </div>
           </div>
         </div>
