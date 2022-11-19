@@ -8,9 +8,9 @@ export default function Summary({ data }) {
   }
 
   return (
-    <section className="pb-4 border-b border-gray-500">
-      <Heading level={4}>SUMMARY</Heading>
-      <div dangerouslySetInnerHTML={htmlRender(data)} className="text-sm" />
+    <section>
+      <Heading level={4} className="text-gray-600">SUMMARY</Heading>
+      <div dangerouslySetInnerHTML={htmlRender(data)} className="text-sm text-gray-900 dark:text-gray-400" />
     </section>
   )
 }

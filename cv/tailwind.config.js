@@ -4,8 +4,12 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
-    extend: {},
+    backgroundImage: {
+      'dark-bg': "url('/images/dark-bg.svg')",
+      'light-bg': "url('/images/light-bg.svg')",
+    }
   },
   plugins: [],
 }
