@@ -5,7 +5,7 @@ import '../styles/global.css'
 function MyApp({ Component, pageProps }) {
   return (
     <>
-      <Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=G-YGP5NEHQZL`} />
+      <Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=G-K4XDZSSGC8`} />
       <Script
         id='google-analytics'
         strategy="afterInteractive"
@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-YGP5NEHQZL');
+          gtag('config', 'G-K4XDZSSGC8');
         `,
         }}
       />
