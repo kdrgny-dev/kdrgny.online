@@ -16,7 +16,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const url = process.env.JSON_URL
 
-  const { theme, setTheme } = useTheme('light')
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setIsLoading(true)
@@ -26,6 +26,10 @@ export default function Home() {
         setData(data.home)
         setIsLoading(false)
       })
+  }, [])
+
+  useEffect(() => {
+    setTheme('light')
   }, [])
 
 
