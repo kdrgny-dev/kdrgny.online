@@ -3,6 +3,7 @@ import Heading from './Heading'
 import Image from 'next/image'
 import Link from 'next/link'
 
+
 export default function Certificates({ data }) {
   return (
     <section>
@@ -11,7 +12,7 @@ export default function Certificates({ data }) {
         {data?.map((item, index) => (
           <Link key={index} href={item.url}>
             <a target="_blank" className='flex flex-col items-center group hover:shadow-lg dark:hover:shadow-gray-500 transition duration-200 ease-linear rounded'>
-              <div className='relative w-32 h-20 xl:w-36 xl:h-24 overflow-hidden rounded'>
+              <div className='relative w-32 h-20 xl:w-36 xl:h-24 rounded'>
                 <Image src={item?.image} alt={item.title} layout="responsive" width={144} height={96} className='group-hover:scale-105 transition duration-200 ease-linear' loading="lazy" placeholder='blur'
                   blurDataURL={`${item?.image}&w=16&q=1`}
                 />
