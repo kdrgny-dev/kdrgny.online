@@ -76,7 +76,7 @@ export default function Home() {
             </svg>
           </button>
         </motion.div>
-        <div className="container mx-auto max-w-6xl xl:px-10 px-5 py-5 bg-gray-100 dark:bg-black border-4 border-gray-500 dark:border-gray-300 shadow-2xl rounded-2xl my-10">
+        <div className="container mx-auto max-w-6xl xl:px-10 px-5 py-5 bg-gray-100 dark:bg-black border-4 border-gray-500 dark:border-gray-300 shadow-2xl rounded-2xl mt-10">
           <Header data={data} />
           <div className="flex flex-col xl:flex-row xl:gap-10 gap-5 mt-6">
             <motion.div

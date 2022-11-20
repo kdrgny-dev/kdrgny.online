@@ -22,6 +22,9 @@ export default function Urls({ data }) {
               <span className="text-sm">
                 {checkUrl(item.url)}
               </span>
+              <span className="font-semibold text-xs">
+                &#8599;
+              </span>
             </a>
           </li>
         ))}

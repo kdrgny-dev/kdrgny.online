@@ -15,7 +15,7 @@ export default function Projects({ data }) {
           <li key={index} className="flex items-center gap-2 py-4 first:pt-0 last:pb-0">
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-1 text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition duration-300 ease-linear">
               <div className='flex flex-col gap-1'>
-                <span className="font-semibold text-sm">
+                <span className="font-semibold text-sm dark:text-gray-300">
                   {item.title} - {item.date}
                 </span>
                 <span className="text-xs">
@@ -31,7 +31,7 @@ export default function Projects({ data }) {
                   {item.technologies}
                 </span>
               </div>
-              <div dangerouslySetInnerHTML={htmlRender(item.content)} />
+              <div dangerouslySetInnerHTML={htmlRender(item.content)} className="text-sm" />
             </a>
           </li>
         ))}
