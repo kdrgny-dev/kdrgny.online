@@ -29,10 +29,6 @@ export default function Home() {
       })
   }, [])
 
-  useEffect(() => {
-    setTheme('light')
-  }, [])
-
 
   return (
     isLoading ? <div className='flex items-center justify-center min-h-screen'>
