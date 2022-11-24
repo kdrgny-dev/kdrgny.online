@@ -33,7 +33,7 @@ export default function Header({ data }) {
           type: "spring",
         }}
       >
-        <Image src={data?.photo} alt={data?.name} layout="fill" className="rounded-full" />
+        <Image src={data?.photo} alt={data?.name} layout="responsive" width={144} height={144} className="rounded-full" blurDataURL={`${data?.photo}&w=16&q=1`} />
       </motion.div>
     </div>
   )

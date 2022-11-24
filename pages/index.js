@@ -50,6 +50,7 @@ export default function Home({ data }) {
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             type="button"
+            ariaLabel="Change Theme"
             className="text-gray-100 bg-gray-400 dark:text-gray-100 hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition duration-500 ease-in-out"
           >
             <svg
