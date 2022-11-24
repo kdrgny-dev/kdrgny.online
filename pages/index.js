@@ -12,22 +12,23 @@ import Certificates from '../components/Certificates'
 import Loading from '../components/Loading'
 import { motion } from "framer-motion"
 
-export default function Home() {
-  const [data, setData] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const url = process.env.JSON_URL
+export default function Home({ data }) {
+  const [isLoading, setIsLoading] = useState(true)
+
 
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
-    setIsLoading(true)
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setData(data.home)
-        setIsLoading(false)
-      })
-  }, [])
+
+    if (theme === 'system') {
+      setTheme('dark')
+    }
+
+    if (data) {
+      setIsLoading(false)
+    }
+
+  }, [data, setTheme, theme])
 
 
   return (
@@ -111,4 +112,16 @@ export default function Home() {
       </div>
     )
   )
+}
+
+export async function getStaticProps() {
+  const url = process.env.JSON_URL
+  const res = await fetch(url)
+  const data = await res.json()
+
+  return {
+    props: {
+      data: data.home
+    }
+  }
 }
