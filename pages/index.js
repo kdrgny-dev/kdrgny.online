@@ -50,7 +50,7 @@ export default function Home({ data }) {
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             type="button"
-            ariaLabel="Change Theme"
+            aria-label="Change Theme"
             className="text-gray-100 bg-gray-400 dark:text-gray-100 hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition duration-500 ease-in-out"
           >
             <svg
@@ -93,6 +93,7 @@ export default function Home({ data }) {
                 <Summary data={data?.summary} />
                 <Projects data={data?.projects} />
                 <Skills data={data?.skills} />
+                <Certificates data={data?.certificates} />
               </div>
             </motion.div>
             <motion.div
@@ -103,7 +104,6 @@ export default function Home({ data }) {
             >
               <div className="flex flex-col gap-4">
                 <Experience data={data?.experience} />
-                <Certificates data={data?.certificates} />
               </div>
             </motion.div>
           </div>
