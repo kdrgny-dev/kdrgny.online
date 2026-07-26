@@ -1185,48 +1185,6 @@ a {
   }
 }
 
-/* --- unvan: kendi kendine yazılır --------------------------------------- */
-
-.hero__type {
-  /* ch birimi mono yüz için doğru; --n karakter sayısı. Genişlik animasyonu
-     JS gerektirmez, dolayısıyla script çalışmasa da metin tam görünür. */
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero__type {
-    animation: type-in calc(var(--n) * 42ms) steps(var(--n), end) 700ms backwards;
-  }
-  .hero__type::after {
-    content: "";
-    position: absolute;
-    right: 0.35rem;
-    top: 0.42rem;
-    bottom: 0.42rem;
-    width: 1px;
-    background: currentColor;
-    animation: caret 900ms steps(2, jump-none) infinite;
-    animation-delay: calc(var(--n) * 42ms + 700ms);
-  }
-
-  @keyframes type-in {
-    from {
-      max-width: 0;
-      padding-right: 0;
-    }
-    to {
-      max-width: 100%;
-    }
-  }
-  @keyframes caret {
-    50% {
-      opacity: 0;
-    }
-  }
-}
-
 @media (max-width: 700px) {
   .hero__top {
     grid-template-columns: minmax(0, 1fr);
@@ -1327,7 +1285,7 @@ a {
     display: none !important;
   }
   .hero__ch,
-  .hero__type,
+  .tw,
   .light,
   .block .grid > * {
     animation: none !important;
@@ -1336,7 +1294,60 @@ a {
     filter: none !important;
     max-width: none !important;
   }
-  .hero__type::after {
-    display: none !important;
+}
+
+/* ================================================== özet: daktilo efekti ===
+   Karakterler script tarafından span'lere sarılır (bkz. Hero.astro). Sarılmamış
+   hâl — script yok, ya da hareket azaltılmış — paragrafın tamamı görünür
+   demektir; animasyon yalnızca data-typing="run" varken çalışır. */
+
+.hero__summary .tw {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__summary[data-typing="run"] .tw {
+    /* Süre değil, sadece gecikme: harf ya yok ya var — mürekkep gibi. */
+    animation: tw-strike 1ms linear forwards;
+    animation-delay: calc(var(--i) * 7ms + 650ms);
+  }
+
+  /* Yazan imleç: metnin sonunda bekler, yazım bitince yanıp sönmeye başlar. */
+  .hero__summary[data-typing="run"]::after {
+    content: "";
+    display: inline-block;
+    width: 0.55ch;
+    height: 1em;
+    margin-left: 0.06em;
+    vertical-align: -0.15em;
+    background: var(--accent-ink, currentColor);
+    opacity: 0.85;
+    animation: tw-caret 780ms steps(2, jump-none) infinite;
+  }
+
+  @keyframes tw-strike {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes tw-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+/* Yazılmamış hâlde imleç olmasın. */
+.hero__summary:not([data-typing="run"])::after {
+  content: none;
+}
+
+@media print {
+  .hero__summary .tw {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  .hero__summary::after {
+    content: none !important;
   }
 }
