@@ -71,6 +71,18 @@ a {
   border-radius: 2px;
 }
 
+.u-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .skip {
   position: absolute;
   left: -9999px;
@@ -116,17 +128,26 @@ a {
   --rule: rgba(234, 240, 238, 0.38);
   --panel-top: rgba(255, 255, 255, 0.07);
   --panel-shadow: 0 22px 60px -34px rgba(0, 0, 0, 0.85);
-  --halo: 0 2px 20px rgba(6, 14, 22, 0.7);
+  /* Carries the display type now that the scrim is light. */
+  --halo:
+    0 1px 2px rgba(6, 14, 22, 0.55), 0 2px 12px rgba(6, 14, 22, 0.7),
+    0 6px 34px rgba(6, 14, 22, 0.6);
+
+  /* The moon, as r,g,b. Only night actually raises it; the rest inherit the ink. */
+  --moon: 234, 240, 238;
 
   /* r,g,b lifted from this era's sea in the scene palette. */
   --tint: 26, 34, 48;
   --plate: rgba(var(--tint), 0.84);
+  /* Kept deliberately light: text blocks carry their own plate, so the scrim
+     only has to keep naked display type off the raw sea. Heavier than this and
+     it mutes the scene the whole page is built around. */
   --scrim: linear-gradient(
     to bottom,
     rgba(var(--tint), 0) 0%,
-    rgba(var(--tint), 0.64) 7%,
-    rgba(var(--tint), 0.7) 50%,
-    rgba(var(--tint), 0.64) 93%,
+    rgba(var(--tint), 0.3) 10%,
+    rgba(var(--tint), 0.36) 50%,
+    rgba(var(--tint), 0.3) 90%,
     rgba(var(--tint), 0) 100%
   );
 }
@@ -148,9 +169,17 @@ a {
   --accent: #f2c083;
   --accent-ink: #f8d9ae;
 }
+/* Night has exactly one light source, and it is cold. The moon owns the rules,
+   the focus ring, the top edge of every pane and the light on the water, so the
+   whole section can be graded from a single value. */
 .era[data-era="night"] {
   --tint: 2, 5, 13;
   --plate: rgba(var(--tint), 0.8);
+  --accent: #7fb8d8;
+  --accent-ink: #cfe6f2;
+  --focus: #cfe6f2;
+  --moon: 207, 230, 242;
+  --panel-top: rgba(var(--moon), 0.2);
 }
 
 /* Soft ground under the whole era so naked display type never floats. */
@@ -288,7 +317,6 @@ a {
 
 .panel,
 .card,
-.cert,
 .link-chip {
   background: var(--plate);
   border: 1px solid var(--edge);
@@ -305,7 +333,7 @@ a {
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .panel,
   .card,
-  .cert,
+  .light__pane,
   .link-chip,
   .skills li,
   .era__role,
@@ -537,74 +565,229 @@ a {
   margin-top: clamp(2.5rem, 6vw, 4rem);
 }
 
+/* ------------------------------------------------- toolkit & credentials --- */
+/* Night's two lists are one block: the same square-cut glass in both, lit from
+   above by the same warm lamp. Skills are the windows with no light on;
+   certificates are the ones that are lit, and only those throw a reflection.
+   The shared sub-heading rule below repeats the era rule at a smaller size, so
+   the block reads as two shelves of one thing rather than two widgets. */
+
+.era[data-era="night"] .sub {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.7rem, 2vw, 1.15rem);
+}
+.era[data-era="night"] .sub::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  height: 1px;
+  background: var(--rule);
+}
+
 /* -------------------------------------------------------------- skills --- */
 
 .skills {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin: 0;
   padding: 0;
 }
 .skills li {
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem;
+  border-radius: 3px;
+  padding: 0.42rem 0.72rem;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.06em;
+  /* Brand casing is data here — "shadcn/ui" and "tailwindcss" are lowercase on
+     purpose, so nothing transforms the text. */
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
   color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(var(--moon), 0.14);
 }
 
 /* -------------------------------------------------------- certificates --- */
+/* The far shore. Each credential is a lit pane across the water; the
+   certificate document itself never appears as a document — it is flipped,
+   blurred to a bloom and masked away downwards as that pane's reflection. */
 
-.certs {
+.lights {
+  --drop-a: clamp(0.55rem, 1.8vw, 1.7rem);
+  --drop-b: clamp(0.25rem, 0.9vw, 0.8rem);
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: clamp(0.75rem, 2vw, 1.1rem);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  align-items: start;
+  /* 12 items, so only 2 / 3 / 4 / 6 columns ever leave a full last row. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.6vw, 1.9rem) clamp(0.5rem, 1.5vw, 1.1rem);
+}
+@media (min-width: 34rem) {
+  .lights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 52rem) {
+  .lights {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 78rem) {
+  .lights {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
-.cert {
+/* No numbering and no ranking: the 12 are peers with no order in the data.
+   The only structure is depth — a small drop reads as a nearer light. */
+.light {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-  transition:
-    border-color 0.3s var(--ease),
-    transform 0.3s var(--ease);
+  min-width: 0;
 }
-.cert:hover {
+.light:nth-child(3n + 2) {
+  margin-top: var(--drop-a);
+}
+.light:nth-child(3n + 3) {
+  margin-top: var(--drop-b);
+}
+
+.light__pane {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.3rem 0.5rem;
+  padding: 0.8rem 0.85rem 0.85rem;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--plate);
+  border: 1px solid var(--edge);
+  box-shadow:
+    inset 0 1px 0 var(--panel-top),
+    0 14px 40px -30px rgba(var(--moon), 0.5);
+  transition:
+    border-color 0.35s var(--ease),
+    box-shadow 0.35s var(--ease),
+    transform 0.35s var(--ease);
+}
+
+.light__name {
+  grid-column: 1 / -1;
+  font-size: 0.88rem;
+  line-height: 1.3;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.light__issuer {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  align-self: end;
+}
+
+.light__mark {
+  grid-column: 2;
+  align-self: end;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--accent-ink);
+  opacity: 0.55;
+  transition: opacity 0.35s var(--ease);
+}
+
+/* Signature: the reflection. Flipped, blurred past legibility, drained of
+   colour and pushed warm, then masked to nothing — a white A4 scan becomes a
+   smear of lamplight instead of a hole in the night. */
+.light__water {
+  position: relative;
+  display: block;
+  height: clamp(2.1rem, 6vw, 3.9rem);
+  margin-top: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  /* The horizontal radius is deliberately narrow: at 64% the smear is already
+     transparent by its own left and right edges, so it falls as a shaft of
+     light down the water instead of sitting there as a grey rectangle. */
+  -webkit-mask-image: radial-gradient(
+    64% 118% at 50% -8%,
+    #000 0%,
+    rgba(0, 0, 0, 0.5) 40%,
+    transparent 82%
+  );
+  mask-image: radial-gradient(
+    64% 118% at 50% -8%,
+    #000 0%,
+    rgba(0, 0, 0, 0.5) 40%,
+    transparent 82%
+  );
+}
+/* The pool itself. The scans differ wildly in how much white they carry, so
+   this floor keeps all twelve reading as the same kind of light. */
+.light__water::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(56% 100% at 50% 0%, rgba(var(--moon), 0.3), transparent 72%);
+  opacity: 0.55;
+  transition: opacity 0.45s var(--ease);
+}
+.light__pane:hover ~ .light__water::before,
+.light__pane:focus-visible ~ .light__water::before {
+  opacity: 1;
+}
+
+.light__water img {
+  position: relative;
+  width: 100%;
+  height: 200%;
+  object-fit: cover;
+  opacity: 0.34;
+  /* Grayscale so none of the scan's own colour survives; the blue it picks up
+     is the sea showing through, which is what moonlight on water looks like. */
+  filter: blur(14px) grayscale(1) brightness(0.82) contrast(0.85);
+  transform: scaleY(-1);
+  transition: opacity 0.45s var(--ease);
+}
+
+.light__pane:hover,
+.light__pane:focus-visible {
   border-color: var(--accent);
   transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--moon), 0.55),
+    0 18px 46px -24px rgba(var(--moon), 0.55);
 }
-.cert__thumb {
-  aspect-ratio: 16 / 11;
-  background: rgba(234, 240, 238, 0.08);
-  border-bottom: 1px solid var(--edge);
+.light__pane:hover .light__mark,
+.light__pane:focus-visible .light__mark {
+  opacity: 1;
 }
-.cert__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* The water sits after the pane inside `.light`, so hover and focus reach it
+   identically — the light strengthening on the water is never hover-only
+   information, it is only ever atmosphere. */
+.light__pane:hover ~ .light__water img,
+.light__pane:focus-visible ~ .light__water img {
+  opacity: 0.6;
 }
-.cert__name {
-  padding: 0.8rem 0.9rem;
-  font-size: 0.9rem;
-  line-height: 1.35;
-  color: var(--ink);
-}
-.cert__name a {
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.cert__name a:hover {
-  color: var(--accent-ink);
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes swell {
+    from {
+      transform: scaleY(-1) translate3d(-2%, 0, 0) scaleX(1.04);
+    }
+    to {
+      transform: scaleY(-1) translate3d(2%, 0, 0) scaleX(1.09);
+    }
+  }
+  .light__water img {
+    animation: swell calc(7s + var(--i, 0) * 0.4s) var(--ease) infinite alternate;
+    animation-delay: calc(var(--i, 0) * -0.83s);
+  }
 }
 
 /* -------------------------------------------------------------- footer --- */
@@ -705,14 +888,25 @@ a {
     transform: none !important;
   }
   .card,
-  .cert,
+  .light__pane,
   .link-chip {
     transition: none !important;
   }
   .card:hover,
-  .cert:hover,
-  .link-chip:hover {
+  .link-chip:hover,
+  .light__pane:hover,
+  .light__pane:focus-visible {
     transform: none;
+  }
+  /* Hover and focus still change the border and the glow, instantly; nothing
+     moves, and neither state was carrying information on its own. */
+  .light__water img {
+    animation: none !important;
+    transform: scaleY(-1) !important;
+    transition: none !important;
+  }
+  .light__water::before {
+    transition: none !important;
   }
 }
 
@@ -725,7 +919,8 @@ a {
   .scene-layer,
   .skip,
   .hero__portrait,
-  .cert__thumb {
+  .light__water,
+  .light__mark {
     display: none !important;
   }
 
@@ -773,7 +968,7 @@ a {
 
   .panel,
   .card,
-  .cert,
+  .light__pane,
   .link-chip,
   .skills li,
   .era__role,
@@ -791,17 +986,41 @@ a {
   }
 
   .grid,
-  .certs,
+  .lights,
   .skills,
   .links {
     display: block;
   }
 
-  .card,
-  .cert {
+  .card {
     display: block;
     margin-bottom: 0.35cm;
     break-inside: avoid;
+  }
+
+  /* Credentials print as a sober one-per-line list: title, issuer, URL. */
+  .light {
+    display: block;
+    margin: 0 0 0.12cm !important;
+    break-inside: avoid;
+  }
+  .light__pane {
+    display: block;
+  }
+  .light__name,
+  .light__issuer {
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #000;
+  }
+  .light__issuer::before {
+    content: " — ";
+  }
+  .era[data-era="night"] .sub::after {
+    display: none;
   }
 
   .skills li,

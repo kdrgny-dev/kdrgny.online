@@ -4,8 +4,15 @@ import { Color, LinearSRGBColorSpace } from 'three'
 //
 // The ramp has a shape: value contrast peaks at midday, saturation peaks at
 // golden hour, haze peaks at dawn. Dawn is deliberately cool — Aegean first
-// light is milky lavender-grey, not pink-orange — so the warmth the page
-// gains by `igaming` has somewhere to come from.
+// light is violet-rose, not pink-orange — so the warmth the page gains by
+// `igaming` has somewhere to come from.
+//
+// Temperature runs cool-violet → cool-blue → neutral → warm-neutral → hot →
+// cool-indigo, and every stop is on the blue side of cyan. The water used to
+// pass through olive and mint on its way across the middle of the day, which
+// put a green cast over four of the six stops and made them read as one muddy
+// era rather than four times of day. There is no green in the gulf at this
+// distance; what there is, is sky, and the water only returns it.
 //
 // `sunAzFrac` is the sun's azimuth as a fraction of the visible half-width of
 // the frame, not an absolute angle. The sun therefore holds the same
@@ -64,64 +71,80 @@ export const COL_KEYS = [
 
 export const ERAS: Era[] = [
   {
-    // Ayvalık before the day starts. Haze eats the horizon; sky and sea sit at
-    // almost the same value. The sun is present only as a warm bruise.
+    // Ayvalık before the day starts. Cool, low sun, real haze. The sky is
+    // violet going to rose at the water; the sea is pewter — a blue-grey with a
+    // violet lean and no green in it at all, because at this light the water is
+    // only returning the sky. Haze is at its maximum for the day here, which is
+    // both true to first light on the gulf and the reason dawn has the softest
+    // horizon of the six.
     key: 'dawn',
-    sunElev: 1.4, sunAzFrac: -0.86, sunColor: 0xffb98a, sunIntensity: 0.55, sunSize: 0.017,
+    sunElev: 1.4, sunAzFrac: -0.86, sunColor: 0xffb08c, sunIntensity: 0.55, sunSize: 0.017,
     moonMix: 0,
-    zenith: 0x26314b, midSky: 0x54617e, horizonCol: 0xc9b7bd, haze: 0xd9c8c6, hazeHeight: 0.118,
-    islandColor: 0x8c8391, islandOpacity: 0.46, stars: 0.10,
-    seaDeep: 0x1b2436, seaShallow: 0x34435a, scatter: 0x6b788c,
+    zenith: 0x2a2b52, midSky: 0x6d6b95, horizonCol: 0xdcb3b8, haze: 0xe6c8c8, hazeHeight: 0.145,
+    islandColor: 0x877f95, islandOpacity: 0.46, stars: 0.10,
+    seaDeep: 0x232839, seaShallow: 0x3e4459, scatter: 0x7a7590,
     waveAmp: 0.52, choppy: 0.44, waveSpeed: 0.85,
     rhythm: 0, pulse: 0, chop: 0.15, glitter: 0.05,
     specStrength: 0.55, glintTight: 900, glintBroad: 40,
     fogScale: 620, exposure: 0.98, camY: 6.1, camPitch: 3.2,
   },
   {
-    // Clear morning: the highest-clarity moment on the page. Haze pulled right
-    // back so the islands read sharply for the only time all day.
+    // Clear morning: the highest-clarity moment on the page, and the only one
+    // where the islands read sharply. Haze is the lowest of the day. The water
+    // is marine blue rather than the teal it used to be — the difference
+    // between morning air over open water and a lagoon postcard.
     key: 'media',
     sunElev: 17, sunAzFrac: -0.52, sunColor: 0xffe9c4, sunIntensity: 1.0, sunSize: 0.012,
     moonMix: 0,
-    zenith: 0x14508f, midSky: 0x3d85be, horizonCol: 0xb6d6e6, haze: 0xcfe3ec, hazeHeight: 0.055,
-    islandColor: 0x40616f, islandOpacity: 0.82, stars: 0,
-    seaDeep: 0x0d3852, seaShallow: 0x1d6884, scatter: 0x3c90a4,
+    zenith: 0x0f4f96, midSky: 0x468ac9, horizonCol: 0xbed8eb, haze: 0xd6e7f0, hazeHeight: 0.085,
+    islandColor: 0x3d5c72, islandOpacity: 0.82, stars: 0,
+    seaDeep: 0x0b3355, seaShallow: 0x1c6392, scatter: 0x3f8cb8,
     waveAmp: 0.50, choppy: 0.45, waveSpeed: 0.95,
     rhythm: 1.0, pulse: 0, chop: 0.30, glitter: 0.10,
     specStrength: 0.85, glintTight: 1700, glintBroad: 60,
-    fogScale: 3000, exposure: 1.0, camY: 6.4, camPitch: 3.4,
+    fogScale: 3000, exposure: 1.00, camY: 6.4, camPitch: 3.4,
   },
   {
-    // Midday. Bleached horizon band, hard tiny glitter, and the turquoise a
-    // shallow gulf actually goes at noon — warmth without going orange.
+    // Midday, the high-key stop. Sun almost overhead, so the horizon bleaches —
+    // but to a blue-white rather than the cream it was, which is what was
+    // dragging the whole middle of the day toward olive. The water is the
+    // luminous cyan-blue of a shallow gulf at noon: bright, saturated, and on
+    // the blue side of cyan, never mint.
     key: 'food',
-    sunElev: 54, sunAzFrac: -0.14, sunColor: 0xfff6e0, sunIntensity: 1.25, sunSize: 0.011,
+    sunElev: 54, sunAzFrac: -0.14, sunColor: 0xfff4e6, sunIntensity: 1.25, sunSize: 0.011,
     moonMix: 0,
-    zenith: 0x1a6cb6, midSky: 0x59a4d5, horizonCol: 0xe9e2ce, haze: 0xf2ecd8, hazeHeight: 0.072,
-    islandColor: 0x8e9a8b, islandOpacity: 0.55, stars: 0,
-    seaDeep: 0x0a4956, seaShallow: 0x179283, scatter: 0x55bfa5,
+    zenith: 0x0e63bb, midSky: 0x4fa0da, horizonCol: 0xdae6ed, haze: 0xe6eff4, hazeHeight: 0.098,
+    islandColor: 0x7d8e9c, islandOpacity: 0.55, stars: 0,
+    seaDeep: 0x04466c, seaShallow: 0x0c9cc8, scatter: 0x40bcda,
     waveAmp: 0.82, choppy: 0.72, waveSpeed: 1.15,
-    rhythm: 0.15, pulse: 0, chop: 1.0, glitter: 0.25,
+    rhythm: 0.15, pulse: 0, chop: 1.0, glitter: 0.34,
     specStrength: 1.0, glintTight: 2400, glintBroad: 70,
     fogScale: 2000, exposure: 1.10, camY: 6.8, camPitch: 3.6,
   },
   {
-    // Afternoon. Everything settles; the only movement that reads is the slow
-    // crest arriving on a fixed cadence.
+    // Afternoon. Everything settles: contrast comes down, haze comes up a
+    // little, and the light turns warm-neutral without turning gold — that is
+    // still an hour away. Sea goes steel blue. The only movement that reads is
+    // the slow crest arriving on a fixed cadence.
     key: 'health',
-    sunElev: 31, sunAzFrac: 0.26, sunColor: 0xffe3b0, sunIntensity: 1.05, sunSize: 0.0125,
+    sunElev: 31, sunAzFrac: 0.26, sunColor: 0xffe2b6, sunIntensity: 1.05, sunSize: 0.0125,
     moonMix: 0,
-    zenith: 0x2d70ad, midSky: 0x73a5c7, horizonCol: 0xe7cfa8, haze: 0xebd8ba, hazeHeight: 0.088,
-    islandColor: 0x6d7a78, islandOpacity: 0.68, stars: 0,
-    seaDeep: 0x133f4e, seaShallow: 0x2b6d76, scatter: 0x5c9698,
+    zenith: 0x30709f, midSky: 0x74a2c4, horizonCol: 0xe2cdb4, haze: 0xe7d7c2, hazeHeight: 0.112,
+    islandColor: 0x6a7686, islandOpacity: 0.68, stars: 0,
+    seaDeep: 0x143c58, seaShallow: 0x2f6b8c, scatter: 0x6a94ad,
     waveAmp: 0.48, choppy: 0.40, waveSpeed: 0.80,
     rhythm: 0.05, pulse: 1.0, chop: 0.20, glitter: 0.15,
     specStrength: 0.90, glintTight: 1900, glintBroad: 55,
-    fogScale: 1900, exposure: 1.04, camY: 7.0, camPitch: 3.5,
+    fogScale: 1900, exposure: 1.00, camY: 7.0, camPitch: 3.5,
   },
   {
     // Şeytan Sofrası. The sun sits down onto the archipelago; the islands are
     // at their darkest and the sea carries a long specular column.
+    //
+    // HELD. Every value below is unchanged from the grade the client signed off
+    // on — this is the stop the rest of the day is graded to arrive at, so it
+    // is the fixed point, not a candidate. Anything that has to move for the
+    // horizon fix moves in the shader, where it applies to all six equally.
     key: 'igaming',
     sunElev: 2.4, sunAzFrac: 0.60, sunColor: 0xffc569, sunIntensity: 1.6, sunSize: 0.020,
     moonMix: 0,
@@ -136,17 +159,25 @@ export const ERAS: Era[] = [
   {
     // Night. The sun has gone under, leaving afterglow on the right; the moon
     // comes up on the left, so the glitter path crosses to the other side of
-    // the frame. Exposure is lifted so ACES does not crush the blues to mud.
+    // the frame.
+    //
+    // Exposure used to be pushed to 1.45 to stop ACES crushing the blues to
+    // mud, which is why night never actually read as night — it was the
+    // brightest setting of the six. The fix is to solve that in the palette
+    // instead: every colour here carries more chroma than it did, so it holds
+    // its blue on the way down, and exposure then drops to 0.92 — well under
+    // golden hour's 1.16. What is left is a genuinely dark frame with stars,
+    // moonlight, and glitter on black water.
     key: 'night',
     sunElev: -7, sunAzFrac: 0.88, sunColor: 0xff9a5c, sunIntensity: 0.14, sunSize: 0.020,
     moonMix: 1,
-    zenith: 0x050813, midSky: 0x0a1124, horizonCol: 0x17233e, haze: 0x1e2c48, hazeHeight: 0.100,
-    islandColor: 0x080d18, islandOpacity: 0.82, stars: 1.0,
-    seaDeep: 0x02050d, seaShallow: 0x09101f, scatter: 0x16223a,
+    zenith: 0x04061a, midSky: 0x0a1030, horizonCol: 0x1a2450, haze: 0x232f5c, hazeHeight: 0.125,
+    islandColor: 0x05070f, islandOpacity: 0.82, stars: 1.0,
+    seaDeep: 0x01030a, seaShallow: 0x070c1c, scatter: 0x141d3c,
     waveAmp: 0.44, choppy: 0.42, waveSpeed: 0.75,
     rhythm: 0, pulse: 0, chop: 0.10, glitter: 1.0,
-    specStrength: 1.50, glintTight: 3200, glintBroad: 90,
-    fogScale: 1500, exposure: 1.45, camY: 6.6, camPitch: 3.6,
+    specStrength: 1.70, glintTight: 3200, glintBroad: 90,
+    fogScale: 1500, exposure: 0.92, camY: 6.6, camPitch: 3.6,
   },
 ]
 

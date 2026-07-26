@@ -126,9 +126,12 @@ varying vec3  vWorld;
 varying vec3  vNrm;
 varying float vHeight;
 
-// <common> supplies rand(), which dithering_pars_fragment depends on.
+// Dither is hzDither() from skyCommon, applied by hand after the sRGB transfer.
+// three's own dithering chunk is deliberately not used: it is compiled out
+// unless material.dithering is set, and switching that flag on pulls in a chunk
+// that depends on rand() from <common> — the arrangement that broke the build
+// last time. A local hash has no such coupling.
 #include <common>
-#include <dithering_pars_fragment>
 
 // Analytic LOD: an octave fades out once its wavelength approaches the ground
 // footprint of a pixel. This is the difference between crisp water and a field
@@ -219,17 +222,32 @@ void main() {
   // break the highlight into sparks on their own.
   col += lit * glint * uSpecStrength;
 
-  // Fog toward the sky colour at this pixel's own horizon azimuth — the sea
-  // dissolves into exactly the sky that is drawn above it.
-  vec3  hd  = normalize(vec3(-V.x, 0.0009, -V.z));
+  // Fog toward the sky this pixel would actually see if the water were not
+  // there — the real view direction, not one pinned to y = 0. Pinning it made
+  // the whole lower half fog toward a single constant colour, which is what
+  // gave the sea a flat slab under the band. Sampled at -y against a haze bell
+  // that is symmetric about the horizon plane, the fog target instead continues
+  // the sky's own ramp downward, and matches it exactly at the seam.
+  vec3  hd  = -V;
   float fog = 1.0 - exp(-dist / max(uFogScale, 50.0));
-  fog = max(fog, smoothstep(2600.0, 6500.0, dist));
+
+  // Guarantee a smooth, wide approach to full fog as the view flattens out.
+  // Angle rather than distance: distance compresses into a couple of pixels
+  // near the horizon, so a distance ramp puts its entire remaining travel on
+  // one scanline, which is a hard edge by any other name. V.y is the sine of
+  // the depression angle, i.e. near-linear in screen y, so this ramp occupies
+  // real estate the eye can see it cross.
+  // Squared by multiply rather than pow(): same curve to the eye, and this runs
+  // on every sea fragment.
+  float below = 1.0 - smoothstep(0.0, 0.055, max(V.y, 0.0));
+  fog = max(fog, below * below);
+
   col = mix(col, skyGradient(hd), fog);
 
   gl_FragColor = vec4(col, 1.0);
 
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
-  #include <dithering_fragment>
+  gl_FragColor.rgb = hzDither(gl_FragColor.rgb, gl_FragCoord.xy);
 }
 `

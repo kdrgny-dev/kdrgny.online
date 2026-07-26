@@ -19,15 +19,14 @@ ${skyCommon}
 
 varying vec3 vRay;
 
-// <common> supplies rand(), which dithering_pars_fragment depends on.
+// Dither is hzDither() from skyCommon — see the note in sea.glsl.
 #include <common>
-#include <dithering_pars_fragment>
 
 void main() {
   gl_FragColor = vec4(skyFull(normalize(vRay)), 1.0);
 
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
-  #include <dithering_fragment>
+  gl_FragColor.rgb = hzDither(gl_FragColor.rgb, gl_FragCoord.xy);
 }
 `

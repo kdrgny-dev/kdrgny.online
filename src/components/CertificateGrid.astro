@@ -7,28 +7,62 @@ interface Props {
 }
 
 const { certificates } = Astro.props
+
+// Half the titles carry the issuer inline ("Color Psychology at Uxcel"), the
+// other half only carry it in the credential host. Pulling it out either way
+// keeps the first line of every pane to the course name alone.
+const AT = /\s+at\s+/i
+
+function issuerOf(certificate: Certificate): { name: string; issuer: string } {
+  const parts = certificate.title.split(AT)
+  if (parts.length > 1) {
+    return { name: parts[0].trim(), issuer: parts.slice(1).join(' at ').trim() }
+  }
+  try {
+    const host = new URL(certificate.url ?? '').hostname.replace(/^(?:www|app)\./, '')
+    const label = host.split('.')[0]
+    return { name: certificate.title, issuer: label.charAt(0).toUpperCase() + label.slice(1) }
+  } catch {
+    return { name: certificate.title, issuer: '' }
+  }
+}
+
+const lights = certificates.map((certificate) => ({
+  ...issuerOf(certificate),
+  href: certificate.url,
+  slug: certificate.slug,
+  // The certificate document itself is a white landscape scan; it is only ever
+  // used as the reflection under the pane, never shown straight.
+  water: safeUrl(certificate.image),
+}))
 ---
 
-<ul class="certs">
+<ul class="lights">
   {
-    certificates.map((certificate) => {
-      const thumb = safeUrl(certificate.image)
+    lights.map((light, index) => {
+      const Pane = light.href ? 'a' : 'span'
+      const link = light.href
+        ? { href: light.href, target: '_blank', rel: 'noopener noreferrer' }
+        : {}
       return (
-        <li class="cert">
-          {thumb && (
-            <span class="cert__thumb">
-              {/* Decorative: the title sits directly beneath it. */}
-              <img src={thumb} alt="" loading="lazy" decoding="async" />
-            </span>
-          )}
-          <span class="cert__name">
-            {certificate.url ? (
-              <a href={certificate.url} target="_blank" rel="noopener noreferrer">
-                {certificate.title}
-              </a>
-            ) : (
-              certificate.title
+        <li class="light" style={`--i:${index}`}>
+          <Pane class="light__pane" {...link}>
+            <span class="light__name">{light.name}</span>
+            {light.issuer && <span class="light__issuer">{light.issuer}</span>}
+            {light.href && (
+              <>
+                <span class="light__mark" aria-hidden="true">
+                  ↗
+                </span>
+                <span class="u-sr">(opens the credential in a new tab)</span>
+              </>
             )}
+          </Pane>
+          {/* Always rendered: the pool of light is CSS, so a pane still sits on
+              the water when a scan is missing or the remote image never loads.
+              The scan only modulates a glow that is already there. */}
+          <span class="light__water" aria-hidden="true">
+            {light.water && <img src={light.water} alt="" loading="lazy" decoding="async" />}
           </span>
         </li>
       )

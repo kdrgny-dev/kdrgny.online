@@ -30,20 +30,59 @@ float hzHash21(vec2 p) {
   return fract(p.x * p.y);
 }
 
+// Interleaved-gradient noise: one dot, one fract, no texture fetch, and a
+// spectrum high enough that the eye reads it as grain rather than as a pattern.
+float hzIGN(vec2 p) {
+  return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715))));
+}
+
+// Triangular-PDF dither at exactly one 8-bit step. Must be applied AFTER the
+// sRGB transfer, because the quantiser it is fighting lives in display space.
+// Two independent samples rather than one on purpose: a rectangular PDF shifts
+// the mean of the ramp it is meant to smooth, a triangular one leaves the mean
+// alone and turns the quantisation error white.
+vec3 hzDither(vec3 c, vec2 p) {
+  float n = hzIGN(p) - hzIGN(p + vec2(41.7, 17.3));
+  return c + n * (1.0 / 255.0);
+}
+
 // Gradient + glow only. Cheap enough to call twice per sea fragment.
 vec3 skyGradient(vec3 dir) {
-  float hu = max(dir.y, 0.0);
+  float y  = dir.y;
+  float hu = max(y, 0.0);
 
   vec3 col = mix(uMidSky, uZenith, pow(max(hu, 1e-4), 0.62));
-  col = mix(uHorizonCol, col, smoothstep(0.0, 0.36, hu));
-  col = mix(col, uHaze, exp(-hu / max(uHazeHeight, 0.008)) * 0.82);
+  col = mix(uHorizonCol, col, smoothstep(0.0, 0.52, hu));
+
+  // Haze is the thing that either dissolves the horizon or draws a bar across
+  // it, so it is built as a bell centred ON the horizon plane rather than a
+  // one-sided exponential hanging off it. Two consequences. It is smooth at
+  // y = 0, so there is no cusp for the eye to latch onto as a line. And the sea
+  // — which samples this same function at +y for its reflection and at -y for
+  // its fog — gets the exact mirror of the sky, so the two halves melt into one
+  // another instead of meeting. The second, much wider lobe is what keeps the
+  // melt from simply becoming a fatter bar: it gives the falloff a long tail
+  // with no edge anywhere for the band to re-form against.
+  // Amplitudes sum to the 0.84 the old one-sided exponential had at y = 0, so
+  // the horizon itself is no lighter than it was; all of the change is in how
+  // far the falloff travels. The tail is tuned to be spent by ~3H — long enough
+  // that there is no edge for the band to re-form against, short enough that it
+  // does not lift the zenith and flatten the sky it is meant to be under.
+  float H  = max(uHazeHeight, 0.02);
+  float tc = y / H;
+  float tw = y / (H * 1.7);
+  float hazeW = exp(-tc * tc * 0.5) * 0.62 + exp(-tw * tw * 0.5) * 0.22;
+  col = mix(col, uHaze, hazeW);
 
   // Warm toward the sun's azimuth, cool on the opposite side (Belt of Venus).
   // This is what makes low light read as time of day rather than a tinted lerp.
+  // Gaussian in elevation for the same reason as the haze: the old exp(-|y|)
+  // put a second kink on the same pixel row as the first.
   vec2 dxz = normalize(vec2(dir.x, dir.z) + vec2(1e-5));
   vec2 sxz = normalize(vec2(uSunDir.x, uSunDir.z) + vec2(1e-5));
   float az   = dot(dxz, sxz);
-  float band = exp(-hu / 0.32);
+  float tb   = y / 0.34;
+  float band = exp(-tb * tb * 0.5);
   col *= mix(vec3(1.0), vec3(1.16, 1.02, 0.86), clamp( az, 0.0, 1.0) * band * 0.60 * min(uSunIntensity, 1.4));
   col *= mix(vec3(1.0), vec3(0.90, 0.94, 1.12), clamp(-az, 0.0, 1.0) * band * 0.40);
 
@@ -117,7 +156,9 @@ vec3 skyFull(vec3 dir) {
   float mdisc = 1.0 - smoothstep(0.0082, 0.0126, ma);
   col = mix(col, uMoonColor * 3.2, mdisc * uMoonMix);
 
-  col += vec3(0.95, 0.97, 1.0) * hzStars(dir) * uStars * 1.7;
+  // Night now runs at a lower exposure than golden hour rather than a higher
+  // one, so the stars have to carry more of their own brightness to survive it.
+  col += vec3(0.95, 0.97, 1.0) * hzStars(dir) * uStars * 2.3;
 
   // Islands. Edge softness is derived from the angular size of one pixel, so
   // the silhouette antialiases without needing derivatives.
