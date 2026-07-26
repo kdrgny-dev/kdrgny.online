@@ -1,0 +1,8 @@
+{
+  "slug": "kalita",
+  "title": "kalita",
+  "url": "https://kalita.net/",
+  "technologies": "React, NextJS, SASS/SCSS, strapi, headlessCMS, Rest API",
+  "content": "<div>UI Design, re-usable components development, headless cms development, data fetching from rest api and multi language support</div>",
+  "date": "2022"
+}

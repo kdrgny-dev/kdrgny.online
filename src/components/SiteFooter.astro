@@ -1,0 +1,35 @@
+---
+import type { Home, Url } from '../lib/cv'
+import HorizonRule from './HorizonRule.astro'
+
+interface Props {
+  home: Home
+  urls: Url[]
+}
+
+const { home, urls } = Astro.props
+---
+
+<footer class="era site-footer" data-era="night" id="contact" aria-labelledby="contact-title">
+  <div class="shell">
+    <HorizonRule light="Night" span={home.location} />
+
+    <h2 class="display era__title reveal" id="contact-title">Get in touch</h2>
+
+    <div class="footer__grid reveal">
+      <ul class="links">
+        {
+          urls.map((link) => (
+            <li>
+              <a class="link-chip" href={link.url} target="_blank" rel="noopener noreferrer">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="footer__note">{home.name} · {home.title}</p>
+    </div>
+  </div>
+</footer>

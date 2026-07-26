@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "collections": [
+    {
+      "name": "urls",
+      "label": "urls",
+      "path": "urls",
+      "fields": [
+        {
+          "key": "slug",
+          "label": "slug",
+          "type": "text"
+        },
+        {
+          "key": "label",
+          "label": "label",
+          "type": "text"
+        },
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "experience",
+      "label": "experience",
+      "path": "experience",
+      "fields": [
+        {
+          "key": "slug",
+          "label": "slug",
+          "type": "text"
+        },
+        {
+          "key": "title",
+          "label": "title",
+          "type": "text"
+        },
+        {
+          "key": "date",
+          "label": "date",
+          "type": "text"
+        },
+        {
+          "key": "position",
+          "label": "position",
+          "type": "text"
+        },
+        {
+          "key": "content",
+          "label": "content",
+          "type": "richtext"
+        }
+      ]
+    },
+    {
+      "name": "projects",
+      "label": "projects",
+      "path": "projects",
+      "fields": [
+        {
+          "key": "slug",
+          "label": "slug",
+          "type": "text"
+        },
+        {
+          "key": "title",
+          "label": "title",
+          "type": "text"
+        },
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text"
+        },
+        {
+          "key": "technologies",
+          "label": "technologies",
+          "type": "text"
+        },
+        {
+          "key": "content",
+          "label": "content",
+          "type": "richtext"
+        },
+        {
+          "key": "date",
+          "label": "date",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "skills",
+      "label": "skills",
+      "path": "skills",
+      "fields": [
+        {
+          "key": "slug",
+          "label": "slug",
+          "type": "text"
+        },
+        {
+          "key": "skill",
+          "label": "skill",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "certificates",
+      "label": "certificates",
+      "path": "certificates",
+      "fields": [
+        {
+          "key": "slug",
+          "label": "slug",
+          "type": "text"
+        },
+        {
+          "key": "title",
+          "label": "title",
+          "type": "text"
+        },
+        {
+          "key": "image",
+          "label": "image",
+          "type": "text"
+        },
+        {
+          "key": "url",
+          "label": "url",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "singletons": [
+    {
+      "name": "home",
+      "label": "home",
+      "path": "home.json",
+      "fields": [
+        {
+          "key": "name",
+          "label": "name",
+          "type": "text"
+        },
+        {
+          "key": "title",
+          "label": "title",
+          "type": "text"
+        },
+        {
+          "key": "photo",
+          "label": "photo",
+          "type": "text"
+        },
+        {
+          "key": "location",
+          "label": "location",
+          "type": "text"
+        },
+        {
+          "key": "summary",
+          "label": "summary",
+          "type": "richtext"
+        }
+      ]
+    }
+  ]
+}

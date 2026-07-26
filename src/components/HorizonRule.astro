@@ -1,0 +1,17 @@
+---
+// The page's signature device: one hairline per era, carrying the era's light
+// on the left and the real span it covers on the right.
+// Named `era-rule`, not `horizon` — the WebGL scene owns `.horizon`.
+interface Props {
+  light: string
+  span?: string
+}
+
+const { light, span } = Astro.props
+---
+
+<div class="era-rule">
+  <span class="era-rule__light">{light}</span>
+  <span class="era-rule__line" aria-hidden="true"></span>
+  {span && <span class="era-rule__span">{span}</span>}
+</div>

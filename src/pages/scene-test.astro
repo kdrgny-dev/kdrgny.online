@@ -1,0 +1,214 @@
+---
+// Standalone harness for the Horizon scene. Deliberately does not use
+// Layout.astro so the scene can be verified independently of the real content.
+import Horizon from '../components/Horizon.astro'
+
+const eras = [
+  { key: 'dawn', label: 'Ayvalık', note: 'Low sun, thick haze, cool pinks over pewter water.' },
+  { key: 'media', label: 'Doğuş Media Group', note: 'Clear morning. A ticker cadence ruled into the surface.' },
+  { key: 'food', label: 'TFI TAB Food Investments', note: 'High sun, bleached horizon, livelier chop.' },
+  { key: 'health', label: 'Acıbadem Technology', note: 'Afternoon. One slow crest arriving on a fixed interval.' },
+  { key: 'igaming', label: 'Balina', note: 'Golden hour onto the archipelago. The long specular column.' },
+  { key: 'night', label: 'Night', note: 'Moon path on dark water, stars, afterglow on the far side.' },
+]
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Horizon — scene test</title>
+    <meta name="robots" content="noindex" />
+  </head>
+
+  <body>
+    <Horizon />
+
+    <main class="site">
+      {
+        eras.map((era, i) => (
+          <section class="era" data-era={era.key} id={era.key}>
+            <div class="panel">
+              <p class="eyebrow">
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                <span>{era.key}</span>
+              </p>
+              <h2>{era.label}</h2>
+              <p class="note">{era.note}</p>
+            </div>
+          </section>
+        ))
+      }
+    </main>
+
+    <aside class="hud" id="hud">
+      <div class="hud__row"><span>era</span><b id="hud-era">—</b></div>
+      <div class="hud__row"><span>blend</span><b id="hud-blend">—</b></div>
+      <div class="hud__row"><span>pos</span><b id="hud-pos">—</b></div>
+      <div class="hud__row"><span>fps</span><b id="hud-fps">—</b></div>
+      <nav class="hud__jump">
+        {eras.map((era) => <a href={`#${era.key}`}>{era.key}</a>)}
+      </nav>
+    </aside>
+
+    <style is:global>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: #1f293c;
+        color: #f4f6fa;
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .site {
+        position: relative;
+        z-index: 1;
+      }
+
+      .era {
+        min-height: 100svh;
+        display: flex;
+        align-items: center;
+        padding: 12vh 6vw;
+      }
+
+      /* The contract: text blocks carry their own ground. */
+      .panel {
+        max-width: 34rem;
+        padding: 2rem 2.25rem 2.25rem;
+        border-radius: 2px;
+        background: rgb(10 16 28 / 0.42);
+        backdrop-filter: blur(18px) saturate(120%);
+        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        border: 1px solid rgb(255 255 255 / 0.14);
+        box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
+      }
+
+      .eyebrow {
+        display: flex;
+        gap: 0.9rem;
+        margin: 0 0 1.25rem;
+        font-size: 0.6875rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgb(255 255 255 / 0.62);
+      }
+
+      .eyebrow span:first-child {
+        color: rgb(255 255 255 / 0.34);
+        font-variant-numeric: tabular-nums;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(1.9rem, 5vw, 3.1rem);
+        font-weight: 300;
+        letter-spacing: -0.03em;
+        line-height: 1.04;
+      }
+
+      .note {
+        margin: 1rem 0 0;
+        max-width: 26rem;
+        font-size: 0.9375rem;
+        line-height: 1.65;
+        color: rgb(255 255 255 / 0.74);
+      }
+
+      .hud {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 5;
+        display: grid;
+        gap: 0.3rem;
+        padding: 0.85rem 1rem;
+        border-radius: 2px;
+        background: rgb(6 10 18 / 0.66);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgb(255 255 255 / 0.14);
+        font-size: 0.6875rem;
+        letter-spacing: 0.06em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .hud__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5rem;
+      }
+
+      .hud__row span {
+        color: rgb(255 255 255 / 0.45);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+
+      .hud__row b {
+        font-weight: 500;
+      }
+
+      .hud__jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.45rem;
+        padding-top: 0.55rem;
+        border-top: 1px solid rgb(255 255 255 / 0.12);
+        max-width: 12rem;
+      }
+
+      .hud__jump a {
+        color: rgb(255 255 255 / 0.6);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+      }
+
+      .hud__jump a:hover,
+      .hud__jump a:focus-visible {
+        color: #fff;
+        border-bottom-color: currentColor;
+      }
+
+      :focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 3px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+
+    <script>
+      const el = (id: string) => document.getElementById(id)
+      const era = el('hud-era')
+      const blend = el('hud-blend')
+      const posEl = el('hud-pos')
+      const fpsEl = el('hud-fps')
+
+      setInterval(() => {
+        const h = (window as unknown as { __horizon?: { debug: () => any } }).__horizon
+        if (!h || !era) return
+        const d = h.debug()
+        era.textContent = d.from === d.to ? d.from : `${d.from} → ${d.to}`
+        if (blend) blend.textContent = d.blend.toFixed(2)
+        if (posEl) posEl.textContent = d.pos.toFixed(2)
+        if (fpsEl) fpsEl.textContent = d.fps.toFixed(0)
+      }, 160)
+    </script>
+  </body>
+</html>

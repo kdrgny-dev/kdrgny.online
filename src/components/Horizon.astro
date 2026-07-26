@@ -1,0 +1,80 @@
+---
+// Persistent scene: sea + sky + light. Mounted once, before content.
+// See docs/scene-contract.md.
+---
+
+<div class="horizon" id="horizon" data-state="init" aria-hidden="true">
+  <div class="horizon__fallback"></div>
+  <canvas class="horizon__canvas" id="horizon-canvas"></canvas>
+</div>
+
+<style>
+  .horizon {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    contain: layout paint;
+  }
+
+  /* Visible before the first frame lands, and permanently if WebGL is
+     unavailable. Dawn palette with the horizon at the height the camera
+     frames it, so the page still reads as the same scene. */
+  .horizon__fallback {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      #26314b 0%,
+      #3d4a68 22%,
+      #54617e 40%,
+      #8e8a99 52%,
+      #c9b7bd 57%,
+      #d9c8c6 58.3%,
+      #6a707f 58.6%,
+      #3e4a60 64%,
+      #2b364c 78%,
+      #1f293c 100%
+    );
+  }
+
+  .horizon__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 900ms ease;
+  }
+
+  .horizon[data-state='ready'] .horizon__canvas {
+    opacity: 1;
+  }
+
+  .horizon[data-state='failed'] .horizon__canvas {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .horizon__canvas {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { mountHorizon } from '../scripts/horizon'
+
+  const boot = () => {
+    try {
+      mountHorizon()
+    } catch {
+      document.getElementById('horizon')?.setAttribute('data-state', 'failed')
+    }
+  }
+
+  boot()
+  document.addEventListener('astro:after-swap', boot)
+</script>

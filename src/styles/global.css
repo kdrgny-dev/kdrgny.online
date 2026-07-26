@@ -1,0 +1,863 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Kadir GÜNAY — content layer over the WebGL horizon.
+
+   Legibility strategy. The scene is dark-dominant at every era: a deep zenith
+   at the top, a deep sea at the bottom, and one bright haze band at the
+   horizon that sweeps through the viewport as you scroll. So the content is a
+   single consistent film over a changing sky — light ink, dark grounds — and
+   the eras are told apart by tint and accent instead of by inverting.
+
+     - big display type sits naked on a section scrim (large text, >= 3:1)
+     - everything smaller sits on a plate or a panel (>= 4.5:1)
+     - each era's tint is lifted from that era's own sea colour in
+       src/scripts/horizon-eras.ts, so the content deepens the scene rather
+       than fighting it
+
+   Type: Archivo Variable (display, expanded) / Source Serif 4 (body) /
+         IBM Plex Mono (almanac data).
+
+   Note: the scene owns `.horizon`; this file's rule component is `.era-rule`.
+   ========================================================================== */
+
+:root {
+  --font-display: "Archivo Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --shell: 74rem;
+  --pad-i: clamp(1.25rem, 5vw, 4rem);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* --------------------------------------------------------------- base --- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #1b2436; /* last-resort sky if the scene never paints */
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  line-height: 1.62;
+  color: #eaf0ee;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus, #eaf0ee);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 50;
+  padding: 0.75rem 1.25rem;
+  background: #eaf0ee;
+  color: #0e2731;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.skip:focus {
+  left: 0.75rem;
+  top: 0.75rem;
+}
+
+/* The scene sits at z-index 0 (fixed); every pixel of content rides above. */
+.site {
+  position: relative;
+  z-index: 1;
+}
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--pad-i);
+}
+
+/* --------------------------------------------------------- era tokens --- */
+
+.era {
+  position: relative;
+  padding-block: clamp(4.5rem, 11vh, 8.5rem);
+  color: var(--ink);
+
+  --ink: #eaf0ee;
+  --ink-soft: #dae4e7;
+  --accent: #b7c97e;
+  --accent-ink: #e2ecc4;
+  --focus: #eaf0ee;
+  --edge: rgba(234, 240, 238, 0.18);
+  --rule: rgba(234, 240, 238, 0.38);
+  --panel-top: rgba(255, 255, 255, 0.07);
+  --panel-shadow: 0 22px 60px -34px rgba(0, 0, 0, 0.85);
+  --halo: 0 2px 20px rgba(6, 14, 22, 0.7);
+
+  /* r,g,b lifted from this era's sea in the scene palette. */
+  --tint: 26, 34, 48;
+  --plate: rgba(var(--tint), 0.84);
+  --scrim: linear-gradient(
+    to bottom,
+    rgba(var(--tint), 0) 0%,
+    rgba(var(--tint), 0.64) 7%,
+    rgba(var(--tint), 0.7) 50%,
+    rgba(var(--tint), 0.64) 93%,
+    rgba(var(--tint), 0) 100%
+  );
+}
+
+.era[data-era="dawn"] {
+  --tint: 31, 41, 60;
+}
+.era[data-era="media"] {
+  --tint: 13, 56, 82;
+}
+.era[data-era="food"] {
+  --tint: 10, 73, 86;
+}
+.era[data-era="health"] {
+  --tint: 19, 63, 78;
+}
+.era[data-era="igaming"] {
+  --tint: 21, 31, 59;
+  --accent: #f2c083;
+  --accent-ink: #f8d9ae;
+}
+.era[data-era="night"] {
+  --tint: 2, 5, 13;
+  --plate: rgba(var(--tint), 0.8);
+}
+
+/* Soft ground under the whole era so naked display type never floats. */
+.era::before {
+  content: "";
+  position: absolute;
+  inset: -5vh 0;
+  z-index: -1;
+  background: var(--scrim);
+  pointer-events: none;
+}
+
+/* -------------------------------------------------- signature: the rule --- */
+/* One hairline per era, carrying the era's light on the left and the real
+   span it covers on the right. Scrolling the page = crossing horizons. */
+
+.era-rule {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 2vw, 1.25rem);
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+
+.era-rule__line {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 1.5rem;
+  background: var(--rule);
+}
+
+.era-rule__light,
+.era-rule__span {
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.55rem + 0.25vw, 0.75rem);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.era-rule__light {
+  color: var(--accent-ink);
+}
+
+.era-rule__light::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.era-rule__span {
+  color: var(--ink-soft);
+}
+
+/* The rule's two plates are `nowrap`; below ~480px let them break rather than
+   push the line out of the viewport. */
+@media (max-width: 30rem) {
+  .era-rule {
+    gap: 0.5rem;
+  }
+  .era-rule__light,
+  .era-rule__span {
+    white-space: normal;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ---------------------------------------------------------------- type --- */
+
+.display {
+  font-family: var(--font-display);
+  font-stretch: 118%; /* wide type echoing the horizon line */
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  text-shadow: var(--halo);
+  margin: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: clamp(0.68rem, 0.62rem + 0.2vw, 0.78rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.era__title {
+  font-size: clamp(2.1rem, 6.5vw, 4.75rem);
+  text-transform: uppercase;
+}
+
+.era__role {
+  display: inline-block;
+  margin: 1rem 0 0;
+  font-size: clamp(1rem, 0.95rem + 0.4vw, 1.25rem);
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.era__head {
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.sub {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.1rem + 0.8vw, 1.85rem);
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  text-shadow: var(--halo);
+  margin: 0 0 1.25rem;
+}
+
+/* ------------------------------------------------------ plates & panels --- */
+/* Anything below display size carries its own ground. */
+
+.plate,
+.era__role,
+.era-rule__light,
+.era-rule__span,
+.hero__meta span,
+.skills li {
+  background: var(--plate);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+}
+
+.panel,
+.card,
+.cert,
+.link-chip {
+  background: var(--plate);
+  border: 1px solid var(--edge);
+  box-shadow:
+    inset 0 1px 0 var(--panel-top),
+    var(--panel-shadow);
+}
+
+.panel {
+  border-radius: 12px;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .panel,
+  .card,
+  .cert,
+  .link-chip,
+  .skills li,
+  .era__role,
+  .era-rule__light,
+  .era-rule__span,
+  .hero__meta span {
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    backdrop-filter: blur(18px) saturate(1.1);
+  }
+}
+
+/* Rich text arriving from the CMS as HTML strings. */
+.prose {
+  max-width: 64ch;
+}
+.prose :where(p, div) {
+  margin: 0 0 1rem;
+}
+.prose :where(p, div):last-child {
+  margin-bottom: 0;
+}
+.prose strong {
+  font-weight: 700;
+}
+.prose ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.prose li {
+  position: relative;
+  padding-left: 1.4rem;
+}
+.prose li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.duties {
+  max-width: none;
+  columns: 2;
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+}
+.duties ul {
+  display: block;
+}
+.duties li {
+  break-inside: avoid;
+  margin-bottom: 0.7rem;
+}
+@media (max-width: 56rem) {
+  .duties {
+    columns: 1;
+  }
+}
+
+/* ---------------------------------------------------------------- hero --- */
+
+.era--hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(6rem, 16vh, 10rem) clamp(4rem, 10vh, 7rem);
+}
+
+.hero__name {
+  font-size: clamp(3rem, 13vw, 10rem);
+  text-transform: uppercase;
+}
+
+.hero__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 1.5rem;
+  flex-wrap: wrap;
+  margin: clamp(1rem, 2.5vw, 1.75rem) 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+.hero__meta span {
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.6rem + 0.2vw, 0.78rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+  margin-top: clamp(1.75rem, 4vw, 2.75rem);
+}
+@media (max-width: 46rem) {
+  .hero__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.hero__portrait {
+  width: clamp(6.5rem, 14vw, 9.5rem);
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--edge);
+  box-shadow: var(--panel-shadow);
+}
+.hero__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------- links --- */
+
+.links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: clamp(1.25rem, 3vw, 1.75rem) 0 0;
+  padding: 0;
+}
+
+.link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  transition:
+    border-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+.link-chip::after {
+  content: "↗";
+  color: var(--accent-ink);
+}
+.link-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------- cards --- */
+
+.grid {
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: clamp(1.1rem, 2.4vw, 1.6rem);
+  border-radius: 12px;
+  transition:
+    border-color 0.3s var(--ease),
+    transform 0.3s var(--ease);
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.card__title a {
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+}
+.card__title a:hover {
+  color: var(--accent-ink);
+}
+
+.card__tech {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.card__note {
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.card__note :where(p, div) {
+  margin: 0;
+}
+
+.card__year {
+  margin: auto 0 0;
+  padding-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+.block {
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+/* -------------------------------------------------------------- skills --- */
+
+.skills {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+.skills li {
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+/* -------------------------------------------------------- certificates --- */
+
+.certs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.1rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+
+.cert {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  transition:
+    border-color 0.3s var(--ease),
+    transform 0.3s var(--ease);
+}
+.cert:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+.cert__thumb {
+  aspect-ratio: 16 / 11;
+  background: rgba(234, 240, 238, 0.08);
+  border-bottom: 1px solid var(--edge);
+}
+.cert__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cert__name {
+  padding: 0.8rem 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.cert__name a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.cert__name a:hover {
+  color: var(--accent-ink);
+}
+
+/* -------------------------------------------------------------- footer --- */
+
+.site-footer {
+  padding-block: clamp(3.5rem, 9vh, 6rem) clamp(2.5rem, 6vh, 4rem);
+}
+.footer__grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.footer__note {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--plate);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+}
+
+/* -------------------------------------------------------------- motion --- */
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    /* `cover` (not `entry`) so blocks taller than the viewport still finish. */
+    animation-range: cover 0% cover 18%;
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s var(--ease),
+      transform 0.7s var(--ease);
+  }
+  html.js .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Hero plays a short load sequence instead of a scroll reveal. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .stagger > * {
+    opacity: 0;
+    animation: reveal-in 0.85s var(--ease) forwards;
+  }
+  html.js .stagger > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  html.js .stagger > *:nth-child(2) {
+    animation-delay: 0.16s;
+  }
+  html.js .stagger > *:nth-child(3) {
+    animation-delay: 0.27s;
+  }
+  html.js .stagger > *:nth-child(4) {
+    animation-delay: 0.38s;
+  }
+  html.js .stagger > *:nth-child(5) {
+    animation-delay: 0.49s;
+  }
+  html.js .stagger > *:nth-child(6) {
+    animation-delay: 0.6s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  html.js .stagger > * {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .card,
+  .cert,
+  .link-chip {
+    transition: none !important;
+  }
+  .card:hover,
+  .cert:hover,
+  .link-chip:hover {
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------- print --- */
+/* A CV gets printed. Drop the scene, the grounds and every decorative layer;
+   leave black type on white paper. */
+
+@media print {
+  .horizon,
+  .scene-layer,
+  .skip,
+  .hero__portrait,
+  .cert__thumb {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10.5pt;
+    line-height: 1.4;
+  }
+
+  .site {
+    z-index: auto;
+  }
+
+  .era,
+  .era[data-era] {
+    --ink: #000;
+    --ink-soft: #333;
+    --accent: #000;
+    --accent-ink: #000;
+    --rule: #999;
+    --edge: #bbb;
+    --plate: transparent;
+    --panel-shadow: none;
+    --halo: none;
+    color: #000;
+    padding-block: 0 0.6cm;
+  }
+
+  .era::before {
+    display: none !important;
+  }
+
+  .era--hero {
+    min-height: 0;
+    display: block;
+    padding-block: 0 0.5cm;
+  }
+
+  .display,
+  .sub {
+    text-shadow: none !important;
+  }
+
+  .panel,
+  .card,
+  .cert,
+  .link-chip,
+  .skills li,
+  .era__role,
+  .era-rule__light,
+  .era-rule__span,
+  .hero__meta span,
+  .footer__note {
+    background: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .grid,
+  .certs,
+  .skills,
+  .links {
+    display: block;
+  }
+
+  .card,
+  .cert {
+    display: block;
+    margin-bottom: 0.35cm;
+    break-inside: avoid;
+  }
+
+  .skills li,
+  .link-chip {
+    display: inline;
+  }
+  .skills li::after {
+    content: " · ";
+  }
+  .skills li:last-child::after {
+    content: "";
+  }
+  .link-chip::after {
+    content: "";
+  }
+
+  .hero__name {
+    font-size: 26pt;
+  }
+  .era__title {
+    font-size: 15pt;
+  }
+  .sub {
+    font-size: 12pt;
+    margin-bottom: 0.2cm;
+  }
+  .duties {
+    columns: 1;
+  }
+  .prose {
+    max-width: none;
+  }
+
+  a {
+    text-decoration: none;
+    color: #000 !important;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: #444;
+    word-break: break-all;
+  }
+
+  .reveal,
+  html.js .reveal,
+  html.js .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+}

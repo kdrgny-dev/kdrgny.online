@@ -1,0 +1,58 @@
+---
+import type { Home, Url } from '../lib/cv'
+import HorizonRule from './HorizonRule.astro'
+import { cleanHtml, safeUrl } from './cv-format'
+
+interface Props {
+  home: Home
+  urls: Url[]
+  span: string
+}
+
+const { home, urls, span } = Astro.props
+const summary = cleanHtml(home.summary)
+const portrait = safeUrl(home.photo)
+---
+
+<section class="era era--hero" data-era="dawn" id="top" aria-labelledby="hero-name">
+  <div class="shell stagger">
+    <HorizonRule light="Dawn" span={span} />
+
+    <h1 class="display hero__name" id="hero-name">{home.name}</h1>
+
+    <p class="hero__meta">
+      <span>{home.title}</span>
+      <span>{home.location}</span>
+    </p>
+
+    <div class="hero__body">
+      <div class="panel prose" set:html={summary} />
+      {
+        portrait && (
+          <div class="hero__portrait">
+            <img
+              src={portrait}
+              alt={`Portrait of ${home.name}`}
+              width="400"
+              height="400"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+        )
+      }
+    </div>
+
+    <ul class="links">
+      {
+        urls.map((link) => (
+          <li>
+            <a class="link-chip" href={link.url} target="_blank" rel="noopener noreferrer">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

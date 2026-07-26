@@ -1,0 +1,8 @@
+{
+  "slug": "tiklagelsin-com",
+  "title": "tiklagelsin.com",
+  "url": "https://www.tiklagelsin.com",
+  "technologies": "React, GatsbyJs, Rest API, Apollo, GraphQl",
+  "content": "<div>UI improvements, development re-usable components for GatsbyJS and ReactJS, Semantic HTML and CSS/SCSS, data fetching Apollo and GraphQl.</div>",
+  "date": "2021"
+}

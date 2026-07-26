@@ -1,0 +1,57 @@
+---
+import type { Experience, Project } from '../lib/cv'
+import HorizonRule from './HorizonRule.astro'
+import ProjectCard from './ProjectCard.astro'
+import { cleanHtml, formatSpan } from './cv-format'
+
+interface Props {
+  era: string
+  id: string
+  light: string
+  entries: Experience[]
+  projects: Project[]
+}
+
+const { era, id, light, entries, projects } = Astro.props
+
+// The rule spans from the earliest entry's start to the latest entry's end.
+const span = [formatSpan(entries.at(-1)?.date).split(' – ')[0], formatSpan(entries[0]?.date).split(' – ').at(-1)]
+  .filter(Boolean)
+  .join(' – ')
+---
+
+<section class="era" data-era={era} id={id} aria-labelledby={`${id}-title`}>
+  <div class="shell">
+    <HorizonRule light={light} span={span} />
+
+    {
+      entries.map((entry, index) => (
+        <div class="block" style={index === 0 ? 'margin-top:0' : undefined}>
+          <header class="era__head reveal">
+            <h2 class="display era__title" id={index === 0 ? `${id}-title` : undefined}>
+              {entry.title}
+            </h2>
+            <p class="era__role">
+              {entry.position} · {formatSpan(entry.date)}
+            </p>
+          </header>
+
+          <div class="panel prose duties reveal" set:html={cleanHtml(entry.content)} />
+        </div>
+      ))
+    }
+
+    {
+      projects.length > 0 && (
+        <div class="block reveal">
+          <h3 class="sub">Shipped</h3>
+          <div class="grid">
+            {projects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>

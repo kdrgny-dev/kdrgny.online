@@ -1,0 +1,8 @@
+{
+  "slug": "ntvradyo",
+  "title": "ntvradyo",
+  "url": "https://www.ntvradyo.com.tr/",
+  "technologies": "React, NextJs, Rest API, SASS/SCSS",
+  "content": "<div>UI improvements, development re-usable components for NextJS and ReactJS, Semantic HTML and CSS/SCSS, data fetching with SWR.&nbsp;</div>",
+  "date": "2021"
+}

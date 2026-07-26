@@ -1,0 +1,31 @@
+---
+import type { Project } from '../lib/cv'
+import { cleanHtml } from './cv-format'
+
+interface Props {
+  project: Project
+  level?: 3 | 4
+}
+
+const { project, level = 3 } = Astro.props
+const Heading = `h${level}` as 'h3' | 'h4'
+const note = cleanHtml(project.content ?? '')
+---
+
+<article class="card">
+  <Heading class="card__title">
+    {
+      project.url ? (
+        <a href={project.url} target="_blank" rel="noopener noreferrer">
+          {project.title}
+        </a>
+      ) : (
+        project.title
+      )
+    }
+  </Heading>
+
+  {project.technologies && <p class="card__tech">{project.technologies}</p>}
+  {note && <div class="card__note" set:html={note} />}
+  {project.date && <p class="card__year">{project.date}</p>}
+</article>

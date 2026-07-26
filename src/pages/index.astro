@@ -1,0 +1,169 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/Hero.astro'
+import ExperienceEra from '../components/ExperienceEra.astro'
+import ProjectCard from '../components/ProjectCard.astro'
+import SkillList from '../components/SkillList.astro'
+import CertificateGrid from '../components/CertificateGrid.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import HorizonRule from '../components/HorizonRule.astro'
+import { home, urls, experience, projects, skills, certificates } from '../lib/cv'
+import type { Experience, Project } from '../lib/cv'
+import { key, cleanHtml, stripHtml, truncate, formatSpan, startYear } from '../components/cv-format'
+
+interface EraSlot {
+  era: string
+  id: string
+  light: string
+  company: string
+  projectKeys: string[]
+}
+
+// Oldest -> newest, so the journey moves forward in time. `experience` arrives
+// newest-first from the data layer, so display order comes from this plan
+// rather than from array order. `light` names come from docs/scene-contract.md.
+const PLAN: EraSlot[] = [
+  {
+    era: 'media',
+    id: 'dogus-media-group',
+    light: 'Morning',
+    company: 'dogusmediagroup',
+    projectKeys: ['ntvcomtr', 'ntvspornet', 'ntvradyo'],
+  },
+  {
+    era: 'food',
+    id: 'tfi-tab-food-investments',
+    light: 'Midday',
+    company: 'tfitabfoodinvestments',
+    projectKeys: ['tiklagelsin'],
+  },
+  {
+    era: 'health',
+    id: 'acibadem-technology',
+    light: 'Afternoon',
+    company: 'acibademtechnology',
+    projectKeys: ['acibadem'],
+  },
+  {
+    era: 'igaming',
+    id: 'balina',
+    light: 'Golden hour',
+    company: 'balina',
+    projectKeys: ['balina'],
+  },
+]
+
+const claimedExperience = new Set<string>()
+const claimedProjects = new Set<string>()
+
+const eras = PLAN.map((slot) => {
+  const entries = experience.filter(
+    (item) =>
+      !claimedExperience.has(item.slug) &&
+      (key(item.title).includes(slot.company) || key(item.slug).includes(slot.company)),
+  )
+  entries.forEach((item) => claimedExperience.add(item.slug))
+
+  // An era with no matching role never renders, so it must not claim projects
+  // either — they have to survive into `night`.
+  const matched = entries.length
+    ? projects.filter(
+        (item) =>
+          !claimedProjects.has(item.slug) &&
+          slot.projectKeys.some(
+            (needle) => key(item.title).includes(needle) || key(item.slug).includes(needle),
+          ),
+      )
+    : []
+  matched.forEach((item) => claimedProjects.add(item.slug))
+
+  return { ...slot, entries, projects: matched }
+}).filter((slot) => slot.entries.length > 0)
+
+// Anything no era claimed lands in `night`. Nothing can be silently dropped.
+const leftoverExperience: Experience[] = experience
+  .filter((item) => !claimedExperience.has(item.slug))
+  .slice()
+  .reverse()
+const leftoverProjects: Project[] = projects.filter((item) => !claimedProjects.has(item.slug))
+
+const years = experience.map((item) => startYear(item.date)).filter(Boolean)
+const stillWorking = experience.some((item) => /present/i.test(item.date ?? ''))
+const careerSpan = years.length
+  ? `${Math.min(...years)} – ${stillWorking ? 'Present' : Math.max(...years)}`
+  : ''
+
+const description = truncate(stripHtml(home.summary))
+const title = `${home.name} — ${home.title}`
+const nightSpan = `${skills.length} skills · ${certificates.length} certificates`
+---
+
+<Layout title={title} description={description} image={home.photo}>
+  <main id="main">
+    <Hero home={home} urls={urls} span={careerSpan} />
+
+    {
+      eras.map((slot) => (
+        <ExperienceEra
+          era={slot.era}
+          id={slot.id}
+          light={slot.light}
+          entries={slot.entries}
+          projects={slot.projects}
+        />
+      ))
+    }
+
+    <section class="era" data-era="night" id="night" aria-labelledby="night-title">
+      <div class="shell">
+        <HorizonRule light="Night" span={nightSpan} />
+
+        <header class="era__head reveal">
+          <h2 class="display era__title" id="night-title">Toolkit &amp; credentials</h2>
+        </header>
+
+        <div class="block reveal">
+          <h3 class="sub">Skills</h3>
+          <SkillList skills={skills} />
+        </div>
+
+        <div class="block reveal">
+          <h3 class="sub">Certificates</h3>
+          <CertificateGrid certificates={certificates} />
+        </div>
+
+        {
+          leftoverProjects.length > 0 && (
+            <div class="block reveal">
+              <h3 class="sub">Other work</h3>
+              <div class="grid">
+                {leftoverProjects.map((project) => (
+                  <ProjectCard project={project} level={4} />
+                ))}
+              </div>
+            </div>
+          )
+        }
+
+        {
+          leftoverExperience.length > 0 && (
+            <div class="block reveal">
+              <h3 class="sub">Also</h3>
+              {leftoverExperience.map((entry) => (
+                <article class="block">
+                  <h4 class="card__title">{entry.title}</h4>
+                  <p class="era__role">
+                    {entry.position} · {formatSpan(entry.date)}
+                  </p>
+                  <div class="panel prose duties" set:html={cleanHtml(entry.content)} />
+                </article>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter home={home} urls={urls} />
+</Layout>

@@ -1,0 +1,13 @@
+---
+import type { Skill } from '../lib/cv'
+
+interface Props {
+  skills: Skill[]
+}
+
+const { skills } = Astro.props
+---
+
+<ul class="skills">
+  {skills.map((item) => <li>{item.skill}</li>)}
+</ul>
