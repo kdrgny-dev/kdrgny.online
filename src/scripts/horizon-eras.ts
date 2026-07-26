@@ -105,17 +105,15 @@ export const ERAS: Era[] = [
     fogScale: 3000, exposure: 1.00, camY: 6.4, camPitch: 3.4,
   },
   {
-    // Midday, the high-key stop. Sun almost overhead, so the horizon bleaches —
-    // but to a blue-white rather than the cream it was, which is what was
-    // dragging the whole middle of the day toward olive. The water is the
-    // luminous cyan-blue of a shallow gulf at noon: bright, saturated, and on
-    // the blue side of cyan, never mint.
+    // Midday, the high-key stop. Sun almost overhead, so the horizon bleaches to
+    // a blue-white. The water is deep Aegean ultramarine, NOT a tropical cyan —
+    // cyan is what made the middle of the day read green.
     key: 'food',
     sunElev: 54, sunAzFrac: -0.14, sunColor: 0xfff4e6, sunIntensity: 1.25, sunSize: 0.011,
     moonMix: 0,
-    zenith: 0x0e63bb, midSky: 0x4fa0da, horizonCol: 0xdae6ed, haze: 0xe6eff4, hazeHeight: 0.098,
-    islandColor: 0x7d8e9c, islandOpacity: 0.55, stars: 0,
-    seaDeep: 0x04466c, seaShallow: 0x0c9cc8, scatter: 0x40bcda,
+    zenith: 0x0d55b4, midSky: 0x4a92e0, horizonCol: 0xdbe4f2, haze: 0xe8eef8, hazeHeight: 0.098,
+    islandColor: 0x7d879c, islandOpacity: 0.55, stars: 0,
+    seaDeep: 0x062f6b, seaShallow: 0x1461b4, scatter: 0x4a8ad6,
     waveAmp: 0.82, choppy: 0.72, waveSpeed: 1.15,
     rhythm: 0.15, pulse: 0, chop: 1.0, glitter: 0.34,
     specStrength: 1.0, glintTight: 2400, glintBroad: 70,
@@ -129,9 +127,9 @@ export const ERAS: Era[] = [
     key: 'health',
     sunElev: 31, sunAzFrac: 0.26, sunColor: 0xffe2b6, sunIntensity: 1.05, sunSize: 0.0125,
     moonMix: 0,
-    zenith: 0x30709f, midSky: 0x74a2c4, horizonCol: 0xe2cdb4, haze: 0xe7d7c2, hazeHeight: 0.112,
-    islandColor: 0x6a7686, islandOpacity: 0.68, stars: 0,
-    seaDeep: 0x143c58, seaShallow: 0x2f6b8c, scatter: 0x6a94ad,
+    zenith: 0x2f66a8, midSky: 0x7a9fd0, horizonCol: 0xe8d2bb, haze: 0xeddac6, hazeHeight: 0.112,
+    islandColor: 0x6d7488, islandOpacity: 0.68, stars: 0,
+    seaDeep: 0x16375e, seaShallow: 0x36699e, scatter: 0x7d97c2,
     waveAmp: 0.48, choppy: 0.40, waveSpeed: 0.80,
     rhythm: 0.05, pulse: 1.0, chop: 0.20, glitter: 0.15,
     specStrength: 0.90, glintTight: 1900, glintBroad: 55,

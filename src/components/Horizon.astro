@@ -20,22 +20,29 @@
 
   /* Visible before the first frame lands, and permanently if WebGL is
      unavailable. Dawn palette with the horizon at the height the camera
-     frames it, so the page still reads as the same scene. */
+     frames it, so the page still reads as the same scene.
+
+     Stops track the `dawn` era in horizon-eras.ts. The old version put a
+     0.3%-wide step across the horizon, which drew the same hard band in the
+     no-WebGL path that the shader was drawing in the WebGL one — and made the
+     canvas fade-in visibly jump. The melt below the horizon is now spread over
+     ~30% of the height, mirroring the haze bell the shader uses. */
   .horizon__fallback {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to bottom,
-      #26314b 0%,
-      #3d4a68 22%,
-      #54617e 40%,
-      #8e8a99 52%,
-      #c9b7bd 57%,
-      #d9c8c6 58.3%,
-      #6a707f 58.6%,
-      #3e4a60 64%,
-      #2b364c 78%,
-      #1f293c 100%
+      #2a2b52 0%,
+      #3f4068 20%,
+      #6d6b95 40%,
+      #a99aad 50%,
+      #dcb3b8 56%,
+      #e6c8c8 58.5%,
+      #c6b0b8 62%,
+      #8a8496 68%,
+      #5c5c72 76%,
+      #3e4459 86%,
+      #232839 100%
     );
   }
 

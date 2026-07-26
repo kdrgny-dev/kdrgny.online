@@ -63,15 +63,20 @@ vec3 skyGradient(vec3 dir) {
   // another instead of meeting. The second, much wider lobe is what keeps the
   // melt from simply becoming a fatter bar: it gives the falloff a long tail
   // with no edge anywhere for the band to re-form against.
-  // Amplitudes sum to the 0.84 the old one-sided exponential had at y = 0, so
-  // the horizon itself is no lighter than it was; all of the change is in how
-  // far the falloff travels. The tail is tuned to be spent by ~3H — long enough
-  // that there is no edge for the band to re-form against, short enough that it
-  // does not lift the zenith and flatten the sky it is meant to be under.
-  float H  = max(uHazeHeight, 0.02);
-  float tc = y / H;
-  float tw = y / (H * 1.7);
-  float hazeW = exp(-tc * tc * 0.5) * 0.62 + exp(-tw * tw * 0.5) * 0.22;
+  // Peak is 0.84, the value the old one-sided exponential had at y = 0, so the
+  // horizon itself is no lighter than it was; all of the change is in how far
+  // the falloff travels. The tail is spent by ~4H: long enough that there is no
+  // edge for the band to re-form against, short enough that it does not lift
+  // the zenith and flatten the sky it is meant to sit under.
+  //
+  // A rational bell rather than a sum of gaussians. It is even in y (so it is
+  // symmetric and smooth at the horizon, which is the whole point), its quartic
+  // term gives the long tail, and it costs one divide instead of two exp() —
+  // this runs twice per sea fragment, so that is the difference between the
+  // horizon fix being free and it costing a millisecond a frame.
+  float H   = max(uHazeHeight, 0.02);
+  float t2  = (y * y) / (H * H);
+  float hazeW = 0.84 / (1.0 + 0.50 * t2 + 0.12 * t2 * t2);
   col = mix(col, uHaze, hazeW);
 
   // Warm toward the sun's azimuth, cool on the opposite side (Belt of Venus).
