@@ -47,7 +47,29 @@ import homeJson from '../../content/home.json'
 
 const load = <T>(mods: Record<string, unknown>): T[] => Object.values(mods) as T[]
 
-export const home = homeJson as Home
+// JustJSON yüklenen görselleri content/media/ altına yazar. Astro yalnızca
+// public/'i servis ettiği için o yollar tarayıcıda kırık gelir; Vite'a import
+// ettirip gerçek (hash'li, kopyalanmış) URL'lerine çeviriyoruz.
+const media = import.meta.glob('../../content/media/*', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const mediaByName = new Map(
+  Object.entries(media).map(([path, url]) => [path.split('/').pop() as string, url]),
+)
+
+export function resolveMedia(path?: string): string {
+  if (!path) return ''
+  if (/^(?:https?:)?\/\//.test(path) || path.startsWith('data:')) return path
+  return mediaByName.get(path.split('/').pop() as string) ?? path
+}
+
+export const home = {
+  ...(homeJson as Home),
+  photo: resolveMedia((homeJson as Home).photo),
+} as Home
 
 export const urls = load<Url>(
   import.meta.glob('../../content/urls/*.json', { eager: true, import: 'default' }),
@@ -80,4 +102,4 @@ export const skills = load<Skill>(
 
 export const certificates = load<Certificate>(
   import.meta.glob('../../content/certificates/*.json', { eager: true, import: 'default' }),
-)
+).map((c) => ({ ...c, image: resolveMedia(c.image) }))

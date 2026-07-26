@@ -1,5 +1,7 @@
 // Presentation-only helpers. The data layer (src/lib/cv.ts) stays untouched.
 
+import { marked } from 'marked'
+
 const COMBINING = /[̀-ͯ]/g
 const NBSP = / /g
 
@@ -32,19 +34,41 @@ export function key(value = ''): string {
     .replace(/[^a-z0-9]/g, '')
 }
 
-/** CMS rich text carries stray `&nbsp;` before closing tags. */
-export function cleanHtml(html = ''): string {
-  return html
-    .replace(/&nbsp;/gi, ' ')
-    .replace(NBSP, ' ')
-    .replace(/[ \t]+(<\/(?:li|p|div|strong|em|b|i)>)/g, '$1')
-    .replace(/[ \t]{2,}/g, ' ')
-    .trim()
+const LOOKS_LIKE_HTML = /<\/?[a-z][^>]*>/i
+
+/**
+ * Rich text arrives in two shapes and both have to render.
+ *
+ * The original import from JustFields carried raw HTML. Anything edited since
+ * in JustJSON comes back as Markdown, because its editor stores Markdown on
+ * disk — which is the point: it stays diffable. So: parse Markdown unless the
+ * value is already HTML.
+ */
+export function cleanHtml(value = ''): string {
+  const text = value.replace(/&nbsp;/gi, ' ').replace(NBSP, ' ').trim()
+  if (!text) return ''
+
+  if (LOOKS_LIKE_HTML.test(text)) {
+    return text
+      .replace(/[ \t]+(<\/(?:li|p|div|strong|em|b|i)>)/g, '$1')
+      .replace(/[ \t]{2,}/g, ' ')
+      .trim()
+  }
+
+  return marked.parse(text, { async: false, breaks: false, gfm: true }).trim()
 }
 
-export function stripHtml(html = ''): string {
-  return html
+/** Plain text for meta tags. Handles both shapes — HTML tags and Markdown marks
+ *  — otherwise the description ships with literal `**` in it. */
+export function stripHtml(value = ''): string {
+  return value
     .replace(/<[^>]*>/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/(\*\*\*|\*\*|__|[*_`~])/g, '')
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/^\s{0,3}>\s?/gm, '')
+    .replace(/^\s{0,3}[-*+]\s+/gm, '')
     .replace(/&nbsp;/gi, ' ')
     .replace(NBSP, ' ')
     .replace(/&#39;|&apos;/gi, "'")
