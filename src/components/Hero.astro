@@ -12,24 +12,46 @@ interface Props {
 const { home, urls, span } = Astro.props
 const summary = cleanHtml(home.summary)
 const portrait = safeUrl(home.photo)
+
+// Ad harf harf belirir; ekran okuyucu bütünü h1'in aria-label'ından alır.
+// lang="tr" şart: text-transform locale duyarlıdır ve İngilizce kuralı
+// "Kadir"i KADIR yapar — doğrusu KADİR.
+const words = home.name.split(/\s+/).filter(Boolean)
+let letterIndex = -1
 ---
 
 <section class="era era--hero" data-era="dawn" id="top" aria-labelledby="hero-name">
   <div class="shell stagger">
     <HorizonRule light="Dawn" span={span} />
 
-    <h1 class="display hero__name" id="hero-name">{home.name}</h1>
+    <div class="hero__top">
+      <div class="hero__intro">
+        <h1 class="display hero__name" id="hero-name" lang="tr" aria-label={home.name}>
+          {
+            words.map((word) => (
+              <span class="hero__word" aria-hidden="true">
+                {[...word].map((ch) => {
+                  letterIndex += 1
+                  return (
+                    <span class="hero__ch" style={`--l:${letterIndex}`}>
+                      {ch}
+                    </span>
+                  )
+                })}
+              </span>
+            ))
+          }
+        </h1>
 
-    <p class="hero__meta">
-      <span>{home.title}</span>
-      <span>{home.location}</span>
-    </p>
+        <p class="hero__meta">
+          <span class="hero__type" style={`--n:${home.title.length}`}>{home.title}</span>
+          <span class="hero__where">{home.location}</span>
+        </p>
+      </div>
 
-    <div class="hero__body">
-      <div class="panel prose" set:html={summary} />
       {
         portrait && (
-          <div class="hero__portrait">
+          <figure class="hero__portrait">
             <img
               src={portrait}
               alt={`Portrait of ${home.name}`}
@@ -38,9 +60,16 @@ const portrait = safeUrl(home.photo)
               loading="eager"
               fetchpriority="high"
             />
-          </div>
+            <span class="hero__portrait-water" aria-hidden="true">
+              <img src={portrait} alt="" loading="lazy" decoding="async" />
+            </span>
+          </figure>
         )
       }
+    </div>
+
+    <div class="hero__body">
+      <div class="panel prose hero__summary" set:html={summary} />
     </div>
 
     <ul class="links">

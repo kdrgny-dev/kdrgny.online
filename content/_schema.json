@@ -156,7 +156,7 @@
         {
           "key": "photo",
           "label": "photo",
-          "type": "text"
+          "type": "image"
         },
         {
           "key": "location",

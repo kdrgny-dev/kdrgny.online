@@ -106,8 +106,12 @@ export const ERAS: Era[] = [
   },
   {
     // Midday, the high-key stop. Sun almost overhead, so the horizon bleaches to
-    // a blue-white. The water is deep Aegean ultramarine, NOT a tropical cyan —
-    // cyan is what made the middle of the day read green.
+    // a blue-white.
+    //
+    // The water is deep Aegean ultramarine. It was a luminous cyan (#0c9cc8)
+    // and the client rejected it twice as "still teal" — cyan at this size and
+    // brightness reads green however far from mint it measures. Client's eye
+    // wins over the metric; do not restore the cyan.
     key: 'food',
     sunElev: 54, sunAzFrac: -0.14, sunColor: 0xfff4e6, sunIntensity: 1.25, sunSize: 0.011,
     moonMix: 0,

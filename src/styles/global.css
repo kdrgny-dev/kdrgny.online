@@ -1080,3 +1080,263 @@ a {
     break-after: avoid;
   }
 }
+
+/* =========================================================== hero, part II ===
+   Portre ismin yanına taşındı ve sahnenin bir parçası gibi davranıyor: altında
+   suya düşen kendi yansıması var. Solundaki sütun geniş tutuluyor. Animasyonlar
+   görünür bir taban durumdan başlar — JS olmasa da, animasyon desteklenmese de
+   metin tam ve okunur kalır. */
+
+.hero__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+}
+
+.hero__intro {
+  min-width: 0;
+}
+
+.hero__body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hero__summary {
+  max-width: 62ch;
+}
+
+/* --- portre ------------------------------------------------------------- */
+
+.hero__portrait {
+  width: clamp(7rem, 17vw, 13rem);
+  margin: 0;
+  position: relative;
+  flex: none;
+}
+
+.hero__portrait > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--edge);
+  box-shadow: var(--panel-shadow);
+}
+
+/* Yansıma: ters çevrilmiş, bulanık, aşağı doğru sönen bir iz. Portreyi denizin
+   üstüne oturtan şey bu. */
+.hero__portrait-water {
+  position: absolute;
+  inset: calc(100% + 0.35rem) 0 auto 0;
+  height: 62%;
+  overflow: hidden;
+  opacity: 0.28;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 78%);
+  mask-image: linear-gradient(to bottom, #000, transparent 78%);
+}
+
+.hero__portrait-water img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  transform: scaleY(-1);
+  filter: blur(3px) saturate(0.55);
+}
+
+/* --- ad: harfler puslu ışıktan çıkar ------------------------------------ */
+
+.hero__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.hero__word + .hero__word {
+  margin-left: 0.28em;
+}
+
+.hero__ch {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__ch {
+    animation: ch-surface 1s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--l) * 55ms + 120ms);
+  }
+
+  @keyframes ch-surface {
+    from {
+      opacity: 0;
+      transform: translateY(0.42em) scale(1.06);
+      filter: blur(14px);
+    }
+    60% {
+      filter: blur(2px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+}
+
+/* --- unvan: kendi kendine yazılır --------------------------------------- */
+
+.hero__type {
+  /* ch birimi mono yüz için doğru; --n karakter sayısı. Genişlik animasyonu
+     JS gerektirmez, dolayısıyla script çalışmasa da metin tam görünür. */
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__type {
+    animation: type-in calc(var(--n) * 42ms) steps(var(--n), end) 700ms backwards;
+  }
+  .hero__type::after {
+    content: "";
+    position: absolute;
+    right: 0.35rem;
+    top: 0.42rem;
+    bottom: 0.42rem;
+    width: 1px;
+    background: currentColor;
+    animation: caret 900ms steps(2, jump-none) infinite;
+    animation-delay: calc(var(--n) * 42ms + 700ms);
+  }
+
+  @keyframes type-in {
+    from {
+      max-width: 0;
+      padding-right: 0;
+    }
+    to {
+      max-width: 100%;
+    }
+  }
+  @keyframes caret {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .hero__top {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .hero__portrait {
+    width: clamp(6rem, 30vw, 9rem);
+  }
+}
+
+/* ================================================ sertifikalar: toplanma ===
+   Bölüme girerken panolar dağınık — farklı yönlerden, eğik, uzakta. Scroll
+   ilerledikçe ızgaraya oturuyorlar. Kaydırma sürücülü; desteklenmediğinde ya da
+   hareket azaltıldığında hepsi doğrudan hizalı görünür. */
+
+.light {
+  --sx: 0rem;
+  --sy: 0rem;
+  --sr: 0deg;
+}
+
+/* Dağılım deterministik: indeksin tek/çift ve 3'lü ritmi yön veriyor. */
+.light:nth-child(3n + 1) {
+  --sx: -3.2rem;
+  --sr: -4.5deg;
+}
+.light:nth-child(3n + 2) {
+  --sx: 2.4rem;
+  --sr: 3.5deg;
+}
+.light:nth-child(3n + 3) {
+  --sx: -1.4rem;
+  --sr: 5deg;
+}
+.light:nth-child(even) {
+  --sy: 3.4rem;
+}
+.light:nth-child(odd) {
+  --sy: 6.2rem;
+}
+.light:nth-child(4n) {
+  --sy: 8rem;
+  --sr: -7deg;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .light {
+      animation: light-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 42%;
+    }
+
+    @keyframes light-settle {
+      from {
+        transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(0.94);
+        opacity: 0.15;
+        filter: blur(2px);
+      }
+      to {
+        transform: none;
+        opacity: 1;
+        filter: blur(0);
+      }
+    }
+  }
+}
+
+/* ==================================================== other work: giriş ===
+   Kartlar sudan yükseliyor. Aynı kaydırma sürücülü yaklaşım. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .block .grid > * {
+      animation: card-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+    .block .grid > *:nth-child(even) {
+      animation-range: entry 0% cover 45%;
+    }
+
+    @keyframes card-rise {
+      from {
+        opacity: 0;
+        transform: translateY(2.6rem) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+}
+
+@media print {
+  .hero__portrait-water {
+    display: none !important;
+  }
+  .hero__ch,
+  .hero__type,
+  .light,
+  .block .grid > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    max-width: none !important;
+  }
+  .hero__type::after {
+    display: none !important;
+  }
+}
